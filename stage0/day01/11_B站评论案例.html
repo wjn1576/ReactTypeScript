@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>11_B站评论案例</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+    
+    /* 头部 */
+    .header { display: flex; align-items: center; margin-bottom: 20px; }
+    .header h2 { font-size: 20px; margin-right: 10px; }
+    .header .count { color: #999; font-size: 14px; }
+    
+    /* Tab 导航 */
+    .tabs { display: flex; gap: 20px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+    .tab { cursor: pointer; color: #666; font-size: 14px; padding: 5px 0; }
+    .tab.active { color: #00a1d6; border-bottom: 2px solid #00a1d6; }
+    
+    /* 输入框区域 */
+    .input-area { display: flex; gap: 10px; margin-bottom: 20px; }
+    .input-area img { width: 40px; height: 40px; border-radius: 50%; }
+    .input-area input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background: #f5f5f5; }
+    .input-area button { padding: 10px 20px; background: #00a1d6; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    .input-area button:hover { background: #008bc7; }
+    
+    /* 评论列表 */
+    .comment { display: flex; gap: 15px; padding: 15px 0; border-bottom: 1px solid #f0f0f0; }
+    .comment img { width: 40px; height: 40px; border-radius: 50%; }
+    .comment-content { flex: 1; }
+    .comment-author { color: #666; font-size: 14px; margin-bottom: 5px; }
+    .comment-text { color: #333; font-size: 14px; line-height: 1.6; margin-bottom: 8px; }
+    .comment-meta { display: flex; gap: 15px; font-size: 12px; color: #999; }
+    .comment-meta span { cursor: pointer; }
+    .comment-meta span:hover { color: #00a1d6; }
+    .delete-btn { color: #999; }
+    .delete-btn:hover { color: #ff4d4f; }
+    
+    /* 空状态 */
+    .empty { text-align: center; padding: 40px; color: #999; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState } = React
+
+    // 初始评论数据
+    const initialComments = [
+      { id: 1, author: 'jack', text: '这是一条评论回复', time: '2023-11-11', likes: 100, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=jack' },
+      { id: 2, author: '张三', text: '讲得真好，学习了！', time: '2023-11-10', likes: 50, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=zhang' },
+      { id: 3, author: '李四', text: '收藏了，以后再看', time: '2023-11-09', likes: 80, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=li' },
+      { id: 4, author: '王五', text: '已三连支持！', time: '2023-11-08', likes: 120, avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=wang' },
+    ]
+
+    function App() {
+      // 1. 评论列表状态
+      const [comments, setComments] = useState(initialComments)
+      
+      // 2. 输入框内容状态
+      const [inputValue, setInputValue] = useState('')
+      
+      // 3. 当前选中的 Tab（最新/最热）
+      const [activeTab, setActiveTab] = useState('latest')
+
+      // 4. 发布评论
+      const handlePublish = () => {
+        if (!inputValue.trim()) return
+        
+        const newComment = {
+          id: Date.now(),
+          author: '我',
+          text: inputValue,
+          time: new Date().toISOString().slice(0, 10),
+          likes: 0,
+          avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=me'
+        }
+        
+        // 新评论加到最前面
+        setComments([newComment, ...comments])
+        setInputValue('')
+      }
+
+      // 5. 删除评论
+      const handleDelete = (id) => {
+        const newComments = comments.filter(item => item.id !== id)
+        setComments(newComments)
+      }
+
+      // 6. 根据 Tab 排序评论
+      const sortedComments = [...comments].sort((a, b) => {
+        if (activeTab === 'latest') {
+          // 最新：按时间倒序
+          return new Date(b.time) - new Date(a.time)
+        } else {
+          // 最热：按点赞数倒序
+          return b.likes - a.likes
+        }
+      })
+
+      return (
+        <div className="container">
+          {/* 头部 */}
+          <div className="header">
+            <h2>评论</h2>
+            <span className="count">{comments.length}</span>
+          </div>
+
+          {/* Tab 导航 */}
+          <div className="tabs">
+            <span 
+              className={`tab ${activeTab === 'latest' ? 'active' : ''}`}
+              onClick={() => setActiveTab('latest')}
+            >
+              最新
+            </span>
+            <span 
+              className={`tab ${activeTab === 'hot' ? 'active' : ''}`}
+              onClick={() => setActiveTab('hot')}
+            >
+              最热
+            </span>
+          </div>
+
+          {/* 输入框区域 */}
+          <div className="input-area">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=me" alt="avatar" />
+            <input 
+              type="text" 
+              placeholder="发一条友善的评论"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+            />
+            <button onClick={handlePublish}>发布</button>
+          </div>
+
+          {/* 评论列表 */}
+          {sortedComments.length === 0 ? (
+            <div className="empty">暂无评论，来发表第一条吧！</div>
+          ) : (
+            sortedComments.map(item => (
+              <div key={item.id} className="comment">
+                <img src={item.avatar} alt={item.author} />
+                <div className="comment-content">
+                  <div className="comment-author">{item.author}</div>
+                  <div className="comment-text">{item.text}</div>
+                  <div className="comment-meta">
+                    <span>{item.time}</span>
+                    <span>点赞:{item.likes}</span>
+                    {/* 只有自己的评论才显示删除按钮 */}
+                    {item.author === '我' && (
+                      <span 
+                        className="delete-btn"
+                        onClick={() => handleDelete(item.id)}
+                      >
+                        删除
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'))
+    root.render(<App />)
+  </script>
+</body>
+</html>

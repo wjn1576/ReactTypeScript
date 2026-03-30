@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>01_组件的概念</title>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- 引入 React 核心库 -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <!-- 引入 ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <!-- 引入 Babel -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    /*
+      组件（Component）的概念
+      
+      1. 什么是组件？
+         - 组件是 React 中独立、可复用的 UI 单元
+         - 就像乐高积木，可以拼成完整页面
+      
+      2. 组件的特点：
+         - 首字母必须大写（React 用来区分 HTML 标签）
+         - 必须返回 JSX
+         - 可以像 HTML 标签一样使用
+      
+      3. 组件的两种写法：
+         - 函数组件（推荐）：function 组件名() {}
+         - 箭头函数：const 组件名 = () => {}
+    */
+
+    // ==================== 1. 定义子组件 ====================
+    // 方式1：function 声明
+    function Button() {
+      return <button>点击我</button>
+    }
+
+    // 方式2：箭头函数（更简洁）
+    const Title = () => {
+      return <h1>欢迎来到 React</h1>
+    }
+
+    // 带样式的组件
+    const Card = () => {
+      return (
+        <div style={{
+          border: '1px solid #ccc',
+          padding: '20px',
+          borderRadius: '8px',
+          marginTop: '10px'
+        }}>
+          <h3>卡片标题</h3>
+          <p>这是卡片内容</p>
+        </div>
+      )
+    }
+
+    // ==================== 2. 使用组件的两种方式 ====================
+    /*
+      自闭合标签：<Button />
+      成对标签：<Button></Button>
+      两种写法效果一样
+    */
+
+    // ==================== 3. 父组件（组合多个子组件）====================
+    function App() {
+      return (
+        <div style={{padding: '20px'}}>
+          {/* 使用 Title 组件 */}
+          <Title />
+
+          {/* 使用 Button 组件 */}
+          <Button />
+
+          {/* 使用多个 Button */}
+          <Button />
+          <Button />
+
+          {/* 使用 Card 组件 */}
+          <Card />
+
+          {/* 成对标签写法 */}
+          <Card></Card>
+        </div>
+      )
+    }
+
+    // ==================== 4. 渲染根组件 ====================
+    const root = ReactDOM.createRoot(document.getElementById('root'))
+    root.render(<App />)
+  </script>
+</body>
+</html>

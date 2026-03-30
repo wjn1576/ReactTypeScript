@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>03_JSX语法规则</title>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- 引入 React 核心库 -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <!-- 引入 ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <!-- 引入 Babel -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    // 定义数据
+    const myId = 'aTgUiGu'
+    const myData = 'Hello, React!'
+
+    /*
+      JSX 语法规则：
+      1. 定义虚拟DOM时，不要写引号
+      2. 标签中混入JS表达式时要用 {} 包裹
+      3. 样式的类名指定不要用 class，要用 className
+      4. 内联样式，要用 style={{key: value}} 的形式去写
+      5. 标签必须闭合（单标签要写成 <br />）
+      6. 根元素只能有一个
+      7. 标签首字母：
+         - 小写开头：转为HTML同名标签（如 <div> → div 元素）
+         - 大写开头：当作自定义组件（如 <MyComponent />）
+    */
+
+    // 1. 创建虚拟DOM（不写引号）
+    const VDOM = (
+      <h2 className="title" id={myId.toLowerCase()}>
+        {/* 2. 混入JS表达式用 {} */}
+        <span style={{color: 'white', fontSize: '29px'}}>
+          {myData.toLowerCase()}
+        </span>
+      </h2>
+    )
+
+    // 2. 渲染虚拟DOM到页面
+    const root = ReactDOM.createRoot(document.getElementById('root'))
+    root.render(VDOM)
+  </script>
+</body>
+</html>

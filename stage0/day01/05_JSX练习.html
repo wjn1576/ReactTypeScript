@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>04_JSX练习</title>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- 引入 React 核心库 -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <!-- 引入 ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <!-- 引入 Babel -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    /*
+      练习：用 JSX 渲染一个个人信息卡片
+      要求：
+      1. 使用 h1 标题显示姓名（首字母大写）
+      2. 使用 p 标签显示年龄和职业
+      3. 使用 className 添加样式类
+      4. 使用 {} 嵌入至少 2 个 JS 表达式
+      5. 使用 style 添加内联样式
+    */
+
+    // 定义数据
+    const name = '张三'
+    const age = 25
+    const job = '前端工程师'
+
+    // 计算工作年限（JS 表达式）
+    const experience = age - 22
+
+    // 创建虚拟DOM
+    const card = (
+      <div className="card" style={{border: '1px solid #ccc', padding: '20px', borderRadius: '8px'}}>
+        {/* 练习1：用大括号嵌入 name */}
+        <h1 className="title">{name}</h1>
+        
+        {/* 练习2：用大括号嵌入多个表达式 */}
+        <p>年龄：{age} 岁</p>
+        <p>职业：{job}</p>
+        <p>工作经验：{experience} 年</p>
+        <ul>
+          <li>姓名：{name}</li>
+          <li>年龄：{age}</li>
+          <li>职业：{job}</li>
+          <li>经验：{experience}年</li>
+        </ul>
+        
+        {/* 练习3：三元表达式 */}
+        <p style={{color: age >= 18 ? 'green' : 'red'}}>
+          {age >= 18 ? '已成年' : '未成年'}
+        </p>
+      </div>
+    )
+
+    // 渲染到页面
+    const root = ReactDOM.createRoot(document.getElementById('root'))
+    root.render(card)
+  </script>
+</body>
+</html>

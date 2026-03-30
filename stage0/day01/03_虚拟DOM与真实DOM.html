@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>3_虚拟DOM与真实DOM</title>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- 引入 React 核心库 -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <!-- 引入 ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+  <script>
+    // =====================================================
+    // 虚拟DOM vs 真实DOM
+    // 
+    // 【虚拟DOM】
+    // - 本质：普通的 JavaScript 对象
+    // - 创建：React.createElement() 或 JSX
+    // - 特点：轻量级，只包含关键信息（type, props, key）
+    // - 操作成本：几乎为零，修改对象属性很快
+    // - 存在位置：内存中
+    // 
+    // 【真实DOM】
+    // - 本质：浏览器内置的 DOM 节点对象
+    // - 创建：document.createElement()
+    // - 特点：重量级，包含大量属性和方法（innerHTML, style, events等）
+    // - 操作成本：高，频繁修改会导致页面重绘回流
+    // - 存在位置：浏览器内存 + 渲染到页面
+    // 
+    // 【React的优势】
+    // 通过对比新旧虚拟DOM的差异（Diff算法），
+    // 只将变化的部分更新到真实DOM，减少不必要的DOM操作
+    // =====================================================
+
+    // 创建虚拟DOM（普通JS对象，轻量）
+    const vDom = React.createElement('h1', { id: 'title' }, 'Hello, React!')
+
+    // 输出虚拟DOM（普通对象）
+    console.log('虚拟DOM:', vDom)
+    console.log('虚拟DOM类型:', typeof vDom)
+    console.log('虚拟DOM是对象:', vDom instanceof Object)
+
+    // 创建真实DOM（浏览器内置对象，重量）
+    const realDom = document.createElement('h1')
+    realDom.id = 'title'
+    realDom.textContent = 'Hello, React!'
+
+    // 输出真实DOM
+    console.log('真实DOM:', realDom)
+    console.log('真实DOM类型:', typeof realDom)
+
+    // 渲染虚拟DOM到页面（React会将虚拟DOM转换为真实DOM并插入页面）
+    const root = ReactDOM.createRoot(document.getElementById('root'))
+    root.render(vDom)
+
+    // 虚拟DOM的关键属性（真实DOM没有这些）
+    console.log('虚拟DOM的属性:')
+    console.log('$$typeof:', vDom.$$typeof)        // Symbol(react.element)
+    console.log('type:', vDom.type)              // 'h1'
+    console.log('props:', vDom.props)            // {id: 'title', children: 'Hello, React!'}
+    console.log('key:', vDom.key)                // null
+  </script>
+</body>
+</html>

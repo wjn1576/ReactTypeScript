@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>12_classnames优化类名控制</title>
+  <style>
+    body { font-family: -apple-system, sans-serif; padding: 20px; background: #f5f5f5; }
+    .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; }
+    h1 { color: #333; }
+    .subtitle { color: #666; margin-bottom: 20px; }
+    .section { margin: 25px 0; padding: 20px; background: #fafafa; border-radius: 8px; }
+    .code { background: #2d2d2d; color: #f8f8f2; padding: 15px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 14px; overflow-x: auto; margin: 10px 0; }
+    .bad { border-left: 4px solid #ff4d4f; }
+    .good { border-left: 4px solid #52c41a; }
+    .tab { display: inline-block; padding: 8px 16px; margin: 5px; cursor: pointer; border-radius: 4px; background: #f0f0f0; }
+    .tab.active { background: #00a1d6; color: white; }
+    .tab.disabled { opacity: 0.5; cursor: not-allowed; }
+    .highlight { color: #ff6b6b; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- 引入 classnames -->
+  <script src="https://unpkg.com/classnames@2.3.2/index.js"></script>
+
+  <script type="text/babel">
+    const { useState } = React
+
+    function App() {
+      const [activeTab, setActiveTab] = useState('latest')
+      const [isLoading, setIsLoading] = useState(false)
+
+      return (
+        <div className="container">
+          <h1>🎨 classnames 优化类名控制</h1>
+          <p className="subtitle">通过条件动态控制 class 类名的显示，比字符串拼接更清晰</p>
+
+          {/* 问题展示 */}
+          <div className="section bad">
+            <h3>❌ 传统写法（字符串拼接，容易出错）</h3>
+            <div className="code">
+              {`className={\`nav-item \${type === item.type && 'active'}\`}`}
+            </div>
+            <p>问题：空格容易漏、条件复杂时难以维护、true 会变成字符串 "true"</p>
+          </div>
+
+          {/* classnames 写法 */}
+          <div className="section good">
+            <h3>✅ classnames 写法（清晰直观）</h3>
+            <div className="code">
+              {`className={classNames('nav-item', { active: type === item.type })}`}
+            </div>
+            <p>优势：静态类名和动态条件分离，可读性强，自动处理空格</p>
+          </div>
+
+          {/* 实际演示 */}
+          <div className="section">
+            <h3>🎯 Tab 切换演示（使用 classnames）</h3>
+            
+            {['latest', 'hot', 'reply'].map(type => (
+              <span
+                key={type}
+                onClick={() => setActiveTab(type)}
+                className={classNames('tab', {
+                  active: activeTab === type,
+                  disabled: isLoading
+                })}
+              >
+                {type === 'latest' && '最新'}
+                {type === 'hot' && '最热'}
+                {type === 'reply' && '回复'}
+              </span>
+            ))}
+
+            <div style={{marginTop: '15px'}}>
+              <button onClick={() => setIsLoading(!isLoading)}>
+                {isLoading ? '解除禁用' : '模拟加载中（禁用Tab）'}
+              </button>
+            </div>
+          </div>
+
+          {/* 更多用法 */}
+          <div className="section">
+            <h3>📚 classnames 更多用法</h3>
+            
+            <div className="code">
+              {`// 1. 基础用法：字符串
+classNames('foo', 'bar')  // 'foo bar'
+
+// 2. 条件对象：key 是类名，value 是条件
+classNames('nav-item', { active: true, disabled: false })  // 'nav-item active'
+
+// 3. 多个条件
+classNames('btn', {
+  'btn-primary': type === 'primary',
+  'btn-large': size === 'large',
+  'btn-disabled': disabled
+})  // 根据条件组合类名
+
+// 4. 数组写法
+classNames(['foo', 'bar'])  // 'foo bar'
+
+// 5. 混合写法
+classNames('foo', { bar: true }, ['baz', { qux: false }])  // 'foo bar baz'`}
+            </div>
+          </div>
+
+          {/* 安装方式 */}
+          <div className="section">
+            <h3>📦 安装方式</h3>
+            <div className="code">
+              {`# npm/pnpm/yarn 安装
+pnpm add classnames
+
+# HTML 中 CDN 引入
+<script src="https://unpkg.com/classnames@2.3.2/index.js"><\/script>
+
+# React 项目中使用
+import classNames from 'classnames'`}
+            </div>
+          </div>
+
+          <p style={{color: '#666', marginTop: '20px'}}>
+            💡 提示：classnames 是 React 项目中使用最广泛的类名工具库，建议熟练掌握！
+          </p>
+        </div>
+      )
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'))
+    root.render(<App />)
+  </script>
+</body>
+</html>

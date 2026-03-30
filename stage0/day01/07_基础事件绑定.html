@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>01_基础事件绑定</title>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- 引入 React 核心库 -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <!-- 引入 ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <!-- 引入 Babel -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    /*
+      React 基础事件绑定
+      
+      语法：on + 事件名称 = { 事件处理程序 }
+      - 采用驼峰命名法（onClick, onChange, onMouseEnter）
+      - 传入的是函数本身，不是函数调用（不加括号）
+    */
+
+    function App() {
+      // 1. 定义事件处理函数
+      const clickHandler = () => {
+        console.log('button 按钮被点击了')
+        alert('Hello React!')
+      }
+
+      // 2. 带参数的事件处理
+      const showInfo = (name) => {
+        console.log('姓名：', name)
+      }
+
+      return (
+        <div>
+          <h1>React 事件绑定示例</h1>
+          
+          {/* 基础事件绑定：onClick={函数名} */}
+          <button onClick={clickHandler}>
+            点击我
+          </button>
+
+          {/* 传递参数：需要用箭头函数包裹 */}
+          <button onClick={() => showInfo('张三')}>
+            显示信息
+          </button>
+
+          {/* 其他常用事件 */}
+          <input 
+            type="text" 
+            placeholder="输入内容"
+            onChange={(e) => console.log('输入值：', e.target.value)}
+            onFocus={() => console.log('输入框获得焦点')}
+            onBlur={() => console.log('输入框失去焦点')}
+          />
+        </div>
+      )
+    }
+
+    // 渲染组件
+    const root = ReactDOM.createRoot(document.getElementById('root'))
+    root.render(<App />)
+  </script>
+</body>
+</html>

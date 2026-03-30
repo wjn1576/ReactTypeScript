@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>02_使用JS创建虚拟DOM</title>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- 引入 React 核心库 -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <!-- 引入 ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+  <script>
+    // 使用 React.createElement 创建虚拟DOM
+    // 语法：React.createElement(标签名, 属性对象, 子节点...)
+    const vDom = React.createElement(
+      'h1',
+      { id: 'title' },
+      React.createElement('span', null, 'Hello, React!')
+    )
+
+    // 渲染到页面
+    const root = ReactDOM.createRoot(document.getElementById('root'))
+    root.render(vDom)
+  </script>
+</body>
+</html>

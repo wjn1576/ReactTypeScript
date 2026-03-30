@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>01_Lodash便捷使用</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; background: #f5f5f5; }
+    .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; }
+    h1 { color: #333; margin-bottom: 10px; }
+    .subtitle { color: #666; margin-bottom: 30px; }
+    .section { margin-bottom: 30px; padding: 20px; background: #fafafa; border-radius: 8px; }
+    .section h3 { color: #00a1d6; margin-bottom: 15px; }
+    .code { background: #f0f0f0; padding: 15px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 14px; overflow-x: auto; }
+    .result { background: #e8f5e9; padding: 10px 15px; border-radius: 4px; margin-top: 10px; color: #2e7d32; }
+    button { padding: 8px 16px; background: #00a1d6; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+    button:hover { background: #008bc7; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- 引入 React -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- 引入 Lodash（CDN 方式，最便捷） -->
+  <script src="https://unpkg.com/lodash@4/lodash.min.js"></script>
+
+  <script type="text/babel">
+    const { useState } = React
+
+    function App() {
+      // 示例数据
+      const [users, setUsers] = useState([
+        { id: 1, name: '张三', age: 25, role: 'admin' },
+        { id: 2, name: '李四', age: 30, role: 'user' },
+        { id: 3, name: '王五', age: 25, role: 'user' },
+        { id: 4, name: '赵六', age: 35, role: 'admin' },
+        { id: 5, name: '张三', age: 28, role: 'user' },  // 同名
+      ])
+
+      const [nested, setNested] = useState({
+        user: { name: '张三', info: { age: 18, city: '北京' } },
+        hobbies: ['篮球', '足球']
+      })
+
+      // ========== Lodash 常用方法演示 ==========
+
+      // 1. orderBy - 多字段排序
+      const sortedUsers = _.orderBy(users, ['age', 'name'], ['asc', 'asc'])
+      // 先按年龄升序，再按姓名升序
+
+      // 2. groupBy - 按角色分组
+      const groupedByRole = _.groupBy(users, 'role')
+
+      // 3. uniqBy - 按字段去重
+      const uniqueNames = _.uniqBy(users, 'name')
+
+      // 4. filter + map - 筛选后提取
+      const adultNames = _(users)
+        .filter(u => u.age >= 30)    // 筛选30岁以上
+        .map(u => u.name)             // 提取姓名
+        .value()                      // 结束链式调用
+
+      // 5. cloneDeep - 深拷贝
+      const handleDeepCopy = () => {
+        const copy = _.cloneDeep(nested)
+        copy.user.info.age = 99  // 修改拷贝的
+        alert(`深拷贝修改后：${JSON.stringify(copy)}\n原对象：${JSON.stringify(nested)}\n\n原对象 age 还是 ${nested.user.info.age}，没变！`)
+      }
+
+      // 6. debounce - 防抖（搜索优化）
+      const [searchText, setSearchText] = useState('')
+      const [debouncedText, setDebouncedText] = useState('')
+      
+      // 创建防抖函数（300ms 后才执行）
+      const debouncedSearch = _.debounce((value) => {
+        setDebouncedText(value)
+        console.log('搜索：', value)
+      }, 300)
+
+      const handleSearch = (e) => {
+        const value = e.target.value
+        setSearchText(value)
+        debouncedSearch(value)
+      }
+
+      // 7. throttle - 节流（控制频率）
+      const [clickCount, setClickCount] = useState(0)
+      const [throttledCount, setThrottledCount] = useState(0)
+      
+      const throttledClick = _.throttle(() => {
+        setThrottledCount(c => c + 1)
+      }, 1000)  // 1秒内最多执行1次
+
+      const handleClick = () => {
+        setClickCount(c => c + 1)
+        throttledClick()
+      }
+
+      return (
+        <div className="container">
+          <h1>🚀 Lodash 便捷使用指南</h1>
+          <p className="subtitle">常用方法：排序、分组、去重、深拷贝、防抖节流</p>
+
+          {/* 1. orderBy 排序 */}
+          <div className="section">
+            <h3>1. _.orderBy - 多字段排序</h3>
+            <div className="code">
+              {`_.orderBy(users, ['age', 'name'], ['asc', 'asc'])`}
+            </div>
+            <div className="result">
+              结果：{JSON.stringify(sortedUsers.map(u => `${u.name}(${u.age})`))}
+            </div>
+          </div>
+
+          {/* 2. groupBy 分组 */}
+          <div className="section">
+            <h3>2. _.groupBy - 按字段分组</h3>
+            <div className="code">
+              {`_.groupBy(users, 'role')`}
+            </div>
+            <div className="result">
+              admin: {groupedByRole.admin?.length || 0} 人, 
+              user: {groupedByRole.user?.length || 0} 人
+            </div>
+          </div>
+
+          {/* 3. uniqBy 去重 */}
+          <div className="section">
+            <h3>3. _.uniqBy - 按字段去重</h3>
+            <div className="code">
+              {`_.uniqBy(users, 'name')`}
+            </div>
+            <div className="result">
+              去重后：{uniqueNames.map(u => u.name).join(', ')}（共{uniqueNames.length}人）
+            </div>
+          </div>
+
+          {/* 4. 链式操作 */}
+          <div className="section">
+            <h3>4. 链式操作 _(data).filter().map().value()</h3>
+            <div className="code">
+              {`_(users).filter(u => u.age >= 30).map(u => u.name).value()`}
+            </div>
+            <div className="result">
+              30岁以上：{adultNames.join(', ')}
+            </div>
+          </div>
+
+          {/* 5. 深拷贝 */}
+          <div className="section">
+            <h3>5. _.cloneDeep - 深拷贝（React 必备）</h3>
+            <div className="code">
+              {`const copy = _.cloneDeep(nestedObj)`}
+            </div>
+            <button onClick={handleDeepCopy}>测试深拷贝</button>
+          </div>
+
+          {/* 6. 防抖 */}
+          <div className="section">
+            <h3>6. _.debounce - 防抖（搜索优化）</h3>
+            <div className="code">
+              {`const debouncedFn = _.debounce(fn, 300)`}
+            </div>
+            <input 
+              type="text" 
+              placeholder="输入搜索内容..."
+              value={searchText}
+              onChange={handleSearch}
+              style={{padding: '8px', width: '200px'}}
+            />
+            <div className="result">
+              输入：{searchText} | 防抖后实际搜索：{debouncedText}
+            </div>
+          </div>
+
+          {/* 7. 节流 */}
+          <div className="section">
+            <h3>7. _.throttle - 节流（控制频率）</h3>
+            <div className="code">
+              {`const throttledFn = _.throttle(fn, 1000)`}
+            </div>
+            <button onClick={handleClick}>快速点击我！</button>
+            <div className="result">
+              实际点击：{clickCount} 次 | 节流后生效：{throttledCount} 次（1秒内最多1次）
+            </div>
+          </div>
+
+          <hr style={{margin: '30px 0'}} />
+
+          <h3>📦 安装方式</h3>
+          <div className="code">
+            {`# pnpm 安装
+pnpm add lodash
+
+# HTML 中 CDN 引入（最简单）
+<script src="https://unpkg.com/lodash@4/lodash.min.js"><\/script>
+
+# ES6 模块化导入
+import _ from 'lodash'
+import { cloneDeep, debounce } from 'lodash'`}
+          </div>
+        </div>
+      )
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'))
+    root.render(<App />)
+  </script>
+</body>
+</html>

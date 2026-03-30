@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>02_数组渲染列表</title>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- 引入 React 核心库 -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <!-- 引入 ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <!-- 引入 Babel -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    // 模拟数据
+    const data = ['Angular', 'React', 'Vue']
+
+    /*
+      方法1：直接在数组里放 JSX 元素（不推荐，数据与视图混在一起）
+      const data2 = [<li>Angular</li>, <li>React</li>, <li>Vue</li>]
+    */
+
+    /*
+      方法2：使用 map() 方法将数据转换为 JSX（推荐）
+      - map() 遍历数组，返回新数组
+      - 每个元素需要唯一的 key 属性（帮助 React 识别哪些元素改变了）
+    */
+    const listItems = data.map((item, index) => {
+      return <li key={index}>{item}</li>
+    })
+
+    // 创建虚拟DOM
+    const VDOM = (
+      <div>
+        <h1>前端 JS 框架列表</h1>
+        <ul>
+          {listItems}
+        </ul>
+      </div>
+    )
+
+    // 渲染虚拟DOM到页面
+    const root = ReactDOM.createRoot(document.getElementById('root'))
+    root.render(VDOM)
+  </script>
+</body>
+</html>

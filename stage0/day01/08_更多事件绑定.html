@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>02_更多事件绑定</title>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- 引入 React 核心库 -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <!-- 引入 ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <!-- 引入 Babel -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    function App() {
+      // 1. 表单输入事件
+      const handleInput = (e) => {
+        console.log('输入内容：', e.target.value)
+      }
+
+      // 2. 表单提交事件
+      const handleSubmit = (e) => {
+        e.preventDefault()  // 阻止表单默认提交行为
+        console.log('表单提交了')
+        alert('提交成功！')
+      }
+
+      // 3. 键盘事件
+      const handleKeyDown = (e) => {
+        console.log('按下的键：', e.key)
+        if (e.key === 'Enter') {
+          console.log('按下了回车键')
+        }
+      }
+
+      // 4. 鼠标事件
+      const handleMouseEnter = () => {
+        console.log('鼠标进入了')
+      }
+      const handleMouseLeave = () => {
+        console.log('鼠标离开了')
+      }
+
+      // 5. 双击事件
+      const handleDoubleClick = () => {
+        console.log('双击了！')
+      }
+
+      return (
+        <div style={{padding: '20px'}}>
+          <h1>React 更多事件绑定示例</h1>
+
+          {/* 1. 表单输入事件 */}
+          <div style={{marginBottom: '20px'}}>
+            <h3>1. onChange 输入事件</h3>
+            <input 
+              type="text" 
+              placeholder="请输入内容" 
+              onChange={handleInput}
+              style={{padding: '8px'}}
+            />
+          </div>
+
+          {/* 2. 表单提交事件 */}
+          <div style={{marginBottom: '20px'}}>
+            <h3>2. onSubmit 表单提交</h3>
+            <form onSubmit={handleSubmit}>
+              <input type="text" placeholder="姓名" style={{padding: '8px'}} />
+              <button type="submit" style={{marginLeft: '10px'}}>提交</button>
+            </form>
+          </div>
+
+          {/* 3. 键盘事件 */}
+          <div style={{marginBottom: '20px'}}>
+            <h3>3. onKeyDown 键盘按下</h3>
+            <input 
+              type="text" 
+              placeholder="按回车试试" 
+              onKeyDown={handleKeyDown}
+              style={{padding: '8px'}}
+            />
+          </div>
+
+          {/* 4. 鼠标事件 */}
+          <div style={{marginBottom: '20px'}}>
+            <h3>4. onMouseEnter / onMouseLeave 鼠标进出</h3>
+            <div 
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+              style={{
+                padding: '20px', 
+                backgroundColor: '#f0f0f0',
+                border: '1px solid #ccc',
+                cursor: 'pointer'
+              }}
+            >
+              把鼠标移到这里试试
+            </div>
+          </div>
+
+          {/* 5. 双击事件 */}
+          <div>
+            <h3>5. onDoubleClick 双击事件</h3>
+            <button onDoubleClick={handleDoubleClick}>
+              双击我
+            </button>
+          </div>
+        </div>
+      )
+    }
+
+    // 渲染组件
+    const root = ReactDOM.createRoot(document.getElementById('root'))
+    root.render(<App />)
+  </script>
+</body>
+</html>
