@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>03_useRef获取DOM示例</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; background: #f5f5f5; }
+    .container { max-width: 700px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; }
+    h1 { color: #333; margin-bottom: 10px; }
+    .subtitle { color: #666; margin-bottom: 30px; }
+    .section { margin-bottom: 25px; padding: 20px; background: #fafafa; border-radius: 8px; }
+    .section h3 { color: #00a1d6; margin-bottom: 15px; }
+    .code { background: #f0f0f0; padding: 15px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 14px; overflow-x: auto; color: #333; }
+    .highlight { background: #fff3cd; padding: 2px 6px; border-radius: 3px; color: #856404; }
+    input { 
+      padding: 10px; 
+      border: 1px solid #ddd; 
+      border-radius: 4px; 
+      font-size: 14px;
+      margin-right: 10px;
+    }
+    button { 
+      padding: 10px 20px; 
+      background: #00a1d6; 
+      color: white; 
+      border: none; 
+      border-radius: 4px; 
+      cursor: pointer; 
+      font-size: 14px;
+      margin: 5px;
+    }
+    button:hover { background: #008bc7; }
+    .result { 
+      background: #e3f2fd; 
+      padding: 15px; 
+      border-radius: 4px; 
+      margin-top: 15px; 
+      color: #1565c0;
+      font-family: 'Consolas', monospace;
+      font-size: 13px;
+    }
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .card {
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .controlled { background: #e8f5e9; }
+    .uncontrolled { background: #fff3e0; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useRef, useEffect } = React
+
+    function App() {
+      // useRef 创建 ref 对象，初始值为 null
+      const inputRef = useRef(null)
+      const [domInfo, setDomInfo] = useState('')
+
+      const showDom = () => {
+        // 通过 ref.current 获取真实的 DOM 元素
+        const input = inputRef.current
+        if (input) {
+          setDomInfo(`
+            标签名: ${input.tagName}
+            类型: ${input.type}
+            当前值: "${input.value}"
+            占位符: ${input.placeholder}
+          `)
+        }
+      }
+
+      const focusInput = () => {
+        // 可以直接调用 DOM 方法
+        inputRef.current?.focus()
+        setDomInfo('已调用 focus() 方法，输入框获得焦点')
+      }
+
+      const clearInput = () => {
+        // 直接操作 DOM 修改值
+        if (inputRef.current) {
+          inputRef.current.value = ''
+        }
+        setDomInfo('已清空输入框（通过 DOM 操作）')
+      }
+
+      return (
+        <div className="container">
+          <h1>03_useRef获取DOM示例</h1>
+          <p className="subtitle">useRef 可以获取真实的 DOM 元素，直接操作浏览器 API</p>
+
+          {/* 核心代码说明 */}
+          <div className="section">
+            <h3>核心代码</h3>
+            <div className="code">
+              {`// 1. 引入 useRef
+import { useRef } from 'react'
+
+// 2. 创建 ref 对象（初始值为 null）
+const inputRef = useRef(null)
+
+// 3. 绑定到 DOM 元素
+<input type="text" ref={inputRef} />
+
+// 4. 通过 ref.current 获取 DOM
+console.log(inputRef.current)  // <input type="text">`}
+            </div>
+          </div>
+
+          {/* 实际演示 */}
+          <div className="section">
+            <h3>演示：获取并操作 DOM</h3>
+            
+            <div style={{ marginBottom: '15px' }}>
+              {/* ref 绑定到输入框 */}
+              <input 
+                type="text" 
+                ref={inputRef}
+                placeholder="请输入内容后点击按钮"
+              />
+            </div>
+
+            <div>
+              <button onClick={showDom}>获取 DOM 信息</button>
+              <button onClick={focusInput} style={{ background: '#4caf50' }}>聚焦输入框</button>
+              <button onClick={clearInput} style={{ background: '#ff9800' }}>清空输入框</button>
+            </div>
+
+            {domInfo && (
+              <div className="result">
+                <strong>结果：</strong><br/>
+                <pre style={{ margin: '5px 0 0 0' }}>{domInfo}</pre>
+              </div>
+            )}
+          </div>
+
+          {/* 使用场景 */}
+          <div className="section">
+            <h3>什么时候用 useRef？</h3>
+            <div className="comparison">
+              <div className="card controlled">
+                <strong>受控绑定（useState）</strong><br/>
+                <small>需要实时知道输入值</small>
+                <ul style={{ margin: '10px 0', paddingLeft: '20px' }}>
+                  <li>表单验证</li>
+                  <li>实时搜索</li>
+                  <li>字数统计</li>
+                </ul>
+              </div>
+              <div className="card uncontrolled">
+                <strong>非受控（useRef）</strong><br/>
+                <small>只需要临时操作 DOM</small>
+                <ul style={{ margin: '10px 0', paddingLeft: '20px' }}>
+                  <li>获取焦点 focus()</li>
+                  <li>播放视频</li>
+                  <li>测量元素尺寸</li>
+                  <li>集成第三方库</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* 注意事项 */}
+          <div className="section">
+            <h3>注意事项</h3>
+            <ul>
+              <li><span className="highlight">初始值为 null</span>：组件首次渲染时 DOM 还未创建</li>
+              <li><span className="highlight">渲染后才可用</span>：ref.current 在 useEffect 或事件处理中才能获取到真实 DOM</li>
+              <li><span className="highlight">不触发重渲染</span>：修改 ref.current 不会导致组件重新渲染（和 useState 的区别）</li>
+            </ul>
+          </div>
+        </div>
+      )
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'))
+    root.render(<App />)
+  </script>
+</body>
+</html>

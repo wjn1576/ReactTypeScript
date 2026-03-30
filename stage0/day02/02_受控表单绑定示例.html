@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>02_受控表单绑定示例</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; background: #f5f5f5; }
+    .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; }
+    h1 { color: #333; margin-bottom: 10px; }
+    .subtitle { color: #666; margin-bottom: 30px; }
+    .section { margin-bottom: 25px; padding: 20px; background: #fafafa; border-radius: 8px; }
+    .section h3 { color: #00a1d6; margin-bottom: 15px; }
+    .code { background: #f0f0f0; padding: 15px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 14px; overflow-x: auto; color: #333; }
+    .result { background: #e8f5e9; padding: 15px; border-radius: 4px; margin-top: 15px; color: #2e7d32; }
+    input { 
+      width: 100%; 
+      padding: 10px; 
+      border: 1px solid #ddd; 
+      border-radius: 4px; 
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .input-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; color: #666; font-size: 14px; }
+    button { 
+      padding: 10px 20px; 
+      background: #00a1d6; 
+      color: white; 
+      border: none; 
+      border-radius: 4px; 
+      cursor: pointer; 
+      font-size: 14px;
+    }
+    button:hover { background: #008bc7; }
+    .flow-box { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 20px 0; }
+    .box { 
+      padding: 20px; 
+      border-radius: 8px; 
+      text-align: center; 
+      font-weight: bold;
+    }
+    .react-box { background: #e3f2fd; color: #1565c0; }
+    .input-box { background: #fce4ec; color: #c2185b; }
+    .arrow { font-size: 24px; color: #666; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState } = React
+
+    function App() {
+      // 核心：用 useState 创建状态，存储输入框的值
+      const [username, setUsername] = useState('')  // 用户名
+      const [password, setPassword] = useState('')  // 密码
+      const [showResult, setShowResult] = useState(false)
+
+      const handleSubmit = () => {
+        setShowResult(true)
+      }
+
+      const handleReset = () => {
+        setUsername('')
+        setPassword('')
+        setShowResult(false)
+      }
+
+      return (
+        <div className="container">
+          <h1>02_受控表单绑定示例</h1>
+          <p className="subtitle">用 React 状态控制输入框，形成双向绑定</p>
+
+          {/* 数据流向图 */}
+          <div className="section">
+            <h3>数据流向图</h3>
+            <div className="flow-box">
+              <div className="box react-box">React<br/>state</div>
+              <div className="arrow">→ value →</div>
+              <div className="box input-box">&lt;Input/&gt;<br/>显示</div>
+            </div>
+            <div className="flow-box">
+              <div className="box react-box">React<br/>state</div>
+              <div className="arrow">← setState ←</div>
+              <div className="box input-box">&lt;Input/&gt;<br/>输入</div>
+            </div>
+          </div>
+
+          {/* 核心代码说明 */}
+          <div className="section">
+            <h3>核心代码</h3>
+            <div className="code">
+              {`// 1. 创建状态存储输入值
+const [username, setUsername] = useState('')
+
+// 2. 绑定到输入框：value 控制显示，onChange 控制更新
+<input 
+  value={username}                    // state → input（显示）
+  onChange={(e) => setUsername(e.target.value)}  // input → state（同步）
+/>`}
+            </div>
+          </div>
+
+          {/* 实际演示 */}
+          <div className="section">
+            <h3>演示：登录表单</h3>
+            
+            <div className="input-group">
+              <label>用户名</label>
+              <input 
+                type="text" 
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="请输入用户名"
+              />
+            </div>
+
+            <div className="input-group">
+              <label>密码</label>
+              <input 
+                type="password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="请输入密码"
+              />
+            </div>
+
+            <div style={{ marginTop: '15px' }}>
+              <button onClick={handleSubmit} style={{ marginRight: '10px' }}>
+                提交（查看state值）
+              </button>
+              <button onClick={handleReset} style={{ background: '#999' }}>
+                重置
+              </button>
+            </div>
+
+            {/* 实时显示 state 值 */}
+            <div style={{ marginTop: '15px', padding: '10px', background: '#f5f5f5', borderRadius: '4px', fontSize: '13px', color: '#666' }}>
+              当前 state 值：username="{username}", password="{password}"
+            </div>
+          </div>
+
+          {/* 提交结果 */}
+          {showResult && (
+            <div className="result">
+              <strong>提交成功！</strong><br/>
+              用户名：{username}<br/>
+              密码：{password}<br/>
+              <small style={{ color: '#666' }}>
+                ✅ 注意：这些值直接从 state 变量读取，不需要操作 DOM
+              </small>
+            </div>
+          )}
+
+          {/* 对比说明 */}
+          <div className="section">
+            <h3>为什么要用受控绑定？</h3>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+              <tr style={{ background: '#e3f2fd' }}>
+                <td style={{ padding: '10px', border: '1px solid #ddd' }}><strong>普通 HTML</strong></td>
+                <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                  获取值：document.querySelector('input').value ❌<br/>
+                  <small style={{ color: '#666' }}>React 不知道输入了什么</small>
+                </td>
+              </tr>
+              <tr style={{ background: '#e8f5e9' }}>
+                <td style={{ padding: '10px', border: '1px solid #ddd' }}><strong>受控绑定</strong></td>
+                <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                  获取值：直接用 {`{username}`} 变量 ✅<br/>
+                  <small style={{ color: '#666' }}>输入框的值 = state 的值，始终同步</small>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      )
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'))
+    root.render(<App />)
+  </script>
+</body>
+</html>
