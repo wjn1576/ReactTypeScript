@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>01_登录框实现</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .card {
+      width: 400px;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 20px;
+      padding: 32px 28px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+    }
+
+    .title {
+      margin: 0;
+      font-size: 34px;
+      color: #f97316;
+      text-align: center;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .subtitle {
+      margin: 10px 0 28px;
+      font-size: 14px;
+      color: #6b7280;
+      text-align: center;
+    }
+
+    .form-item {
+      margin-bottom: 18px;
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #374151;
+      font-weight: 600;
+    }
+
+    .input {
+      width: 100%;
+      height: 46px;
+      border: 1px solid #f3b4b4;
+      border-radius: 12px;
+      padding: 0 14px;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s ease;
+      background: #fff;
+    }
+
+    .input:focus {
+      border-color: #1677ff;
+      box-shadow: 0 0 0 4px rgba(22, 119, 255, 0.12);
+    }
+
+    .input.error-input {
+      border-color: #ef4444;
+    }
+
+    .input.error-input:focus {
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
+    }
+
+    .field-error {
+      min-height: 18px;
+      margin-top: 6px;
+      color: #ef4444;
+      font-size: 12px;
+    }
+
+    .code-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .code-row .form-item {
+      flex: 1;
+      margin-bottom: 18px;
+    }
+
+    .code-btn {
+      width: 110px;
+      height: 46px;
+      border: none;
+      border-radius: 12px;
+      background: #eff6ff;
+      color: #1677ff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .code-btn:disabled {
+      background: #e5e7eb;
+      color: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 6px 0 22px;
+      font-size: 14px;
+      color: #4b5563;
+    }
+
+    .checkbox-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .link {
+      color: #6366f1;
+      text-decoration: none;
+    }
+
+    .link:hover {
+      text-decoration: underline;
+    }
+
+    .button {
+      width: 100%;
+      height: 48px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1677ff 0%, #0f5fd6 100%);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 12px 24px rgba(22, 119, 255, 0.28);
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+
+    .error {
+      min-height: 20px;
+      margin-top: 12px;
+      color: #ef4444;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .success {
+      color: #16a34a;
+    }
+
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1 class="title">极客园</h1>
+    <p class="subtitle">请输入手机号和验证码登录系统</p>
+
+    <div class="form-item">
+      <label class="label" for="mobile">手机号</label>
+      <input id="mobile" class="input" type="text" placeholder="请输入手机号" maxlength="11" />
+      <div class="field-error" id="mobileError"></div>
+    </div>
+
+    <div class="code-row">
+      <div class="form-item">
+        <label class="label" for="code">验证码</label>
+        <input id="code" class="input" type="text" placeholder="请输入验证码" maxlength="6" />
+        <div class="field-error" id="codeError"></div>
+      </div>
+      <button id="sendCodeBtn" class="code-btn" type="button">获取验证码</button>
+    </div>
+
+    <div class="row">
+      <label class="checkbox-wrap">
+        <input id="remember" type="checkbox" />
+        <span>我已阅读并同意用户协议</span>
+      </label>
+      <a class="link" href="javascript:void(0)">忘记密码？</a>
+    </div>
+
+    <button id="loginBtn" class="button">登录</button>
+    <div id="message" class="error" style="margin-top:16px"></div>
+
+    <div class="footer">
+      演示规则：手机号必须为有效格式，验证码为 6 位数字
+    </div>
+  </div>
+
+  <script>
+    const mobileEl = document.getElementById('mobile')
+    const codeEl = document.getElementById('code')
+    const rememberEl = document.getElementById('remember')
+    const messageEl = document.getElementById('message')
+    const loginBtn = document.getElementById('loginBtn')
+    const sendCodeBtn = document.getElementById('sendCodeBtn')
+    const mobileError = document.getElementById('mobileError')
+    const codeError = document.getElementById('codeError')
+
+    mobileEl.addEventListener('blur', function () {
+      validateMobile()
+    })
+
+    codeEl.addEventListener('blur', function () {
+      validateCode()
+    })
+
+    mobileEl.addEventListener('input', function () {
+      if (mobileError.textContent) {
+        validateMobile()
+      }
+    })
+
+    codeEl.addEventListener('input', function () {
+      if (codeError.textContent) {
+        validateCode()
+      }
+    })
+
+    sendCodeBtn.addEventListener('click', function () {
+      if (!validateMobile()) {
+        messageEl.className = 'error'
+        messageEl.textContent = '请先输入正确的手机号'
+        return
+      }
+
+      let count = 5
+      sendCodeBtn.disabled = true
+      sendCodeBtn.textContent = count + 's后重试'
+      const timer = setInterval(function () {
+        count -= 1
+        if (count <= 0) {
+          clearInterval(timer)
+          sendCodeBtn.disabled = false
+          sendCodeBtn.textContent = '获取验证码'
+          return
+        }
+        sendCodeBtn.textContent = count + 's后重试'
+      }, 1000)
+
+      messageEl.className = 'error success'
+      messageEl.textContent = '验证码已发送，演示验证码：123456'
+    })
+
+    loginBtn.addEventListener('click', function () {
+      let hasError = false
+
+      messageEl.textContent = ''
+      messageEl.className = 'error'
+
+      if (!validateMobile()) {
+        hasError = true
+      }
+
+      if (!validateCode()) {
+        hasError = true
+      }
+
+      if (!rememberEl.checked) {
+        hasError = true
+        messageEl.textContent = '请先勾选用户协议'
+      }
+
+      if (hasError) return
+
+      messageEl.className = 'error success'
+      messageEl.textContent = '登录成功，手机号：' + mobileEl.value.trim()
+    })
+
+    function showFieldError(inputEl, errorEl, msg) {
+      inputEl.classList.add('error-input')
+      errorEl.textContent = msg
+    }
+
+    function clearFieldError(inputEl, errorEl) {
+      inputEl.classList.remove('error-input')
+      errorEl.textContent = ''
+    }
+
+    function validateMobile() {
+      const value = mobileEl.value.trim()
+      const mobileReg = /^1[3-9]\d{9}$/
+
+      if (!value) {
+        showFieldError(mobileEl, mobileError, '请输入手机号')
+        return false
+      }
+
+      if (!mobileReg.test(value)) {
+        showFieldError(mobileEl, mobileError, '手机号格式不正确')
+        return false
+      }
+
+      clearFieldError(mobileEl, mobileError)
+      return true
+    }
+
+    function validateCode() {
+      const value = codeEl.value.trim()
+      const codeReg = /^\d{6}$/
+
+      if (!value) {
+        showFieldError(codeEl, codeError, '请输入验证码')
+        return false
+      }
+
+      if (!codeReg.test(value)) {
+        showFieldError(codeEl, codeError, '验证码必须是6位数字')
+        return false
+      }
+
+      clearFieldError(codeEl, codeError)
+      return true
+    }
+  </script>
+</body>
+</html>

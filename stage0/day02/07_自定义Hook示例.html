@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>07_自定义Hook示例</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; background: #f5f5f5; }
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 { color: #333; margin-bottom: 8px; }
+    .subtitle { color: #888; font-size: 14px; margin-bottom: 24px; }
+    .section-title {
+      font-size: 16px; font-weight: bold; color: #333;
+      margin: 28px 0 12px; padding-left: 10px;
+      border-left: 4px solid #00a1d6;
+    }
+    .card {
+      background: white; border-radius: 10px;
+      padding: 20px; margin-bottom: 16px; border: 2px solid #eee;
+    }
+    .card h3 { margin: 0 0 12px; font-size: 15px; color: #333; }
+    .code-hint {
+      background: #f5f5f5; border-radius: 6px;
+      padding: 12px 16px; font-family: Consolas, monospace;
+      font-size: 12px; color: #555; margin-top: 10px;
+    }
+    .display-box {
+      background: #f9f9f9; border: 1px dashed #ccc;
+      border-radius: 6px; padding: 12px 16px;
+      font-size: 14px; color: #555;
+    }
+    .display-box strong { color: #00a1d6; }
+    button {
+      padding: 8px 18px; border: none; border-radius: 6px;
+      cursor: pointer; font-size: 14px; margin: 5px 5px 0 0;
+    }
+    .btn-primary { background: #00a1d6; color: white; }
+    .btn-primary:hover { background: #008bc7; }
+    .btn-gray { background: #eee; color: #555; }
+    .btn-gray:hover { background: #ddd; }
+    .btn-success { background: #4caf50; color: white; }
+    .btn-success:hover { background: #45a049; }
+    .tag {
+      display: inline-block; padding: 2px 10px;
+      border-radius: 10px; font-size: 12px; margin-left: 6px;
+    }
+    .tag-blue { background: #e3f2fd; color: #1565c0; }
+    .tag-green { background: #e8f5e9; color: #2e7d32; }
+    .tag-orange { background: #fff3e0; color: #e65100; }
+    .comparison {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px;
+    }
+    .comparison > div {
+      background: #f9f9f9; border: 1px solid #ddd;
+      border-radius: 6px; padding: 12px;
+    }
+    .comparison h4 { margin: 0 0 8px; font-size: 14px; }
+    .comparison .bad { border-color: #ffcdd2; background: #ffebee; }
+    .comparison .bad h4 { color: #c62828; }
+    .comparison .good { border-color: #c8e6c9; background: #e8f5e9; }
+    .comparison .good h4 { color: #2e7d32; }
+    .hook-box {
+      background: #fff8e1; border: 1px solid #ffe082;
+      border-radius: 6px; padding: 12px; margin: 10px 0;
+    }
+    .hook-box h4 { margin: 0 0 8px; color: #e65100; font-size: 14px; }
+    .hook-box pre { margin: 0; font-size: 12px; color: #555; }
+    .demo-section {
+      border: 1px solid #e0e0e0; border-radius: 8px;
+      padding: 16px; margin: 12px 0; background: #fafafa;
+    }
+    .demo-section h4 { margin: 0 0 10px; color: #333; }
+    .demo-section .result {
+      background: white; border: 1px solid #ddd;
+      border-radius: 4px; padding: 8px 12px;
+      margin-top: 8px; font-size: 13px; color: #555;
+    }
+    .demo-section .result strong { color: #00a1d6; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React
+
+    /* ── 自定义 Hook 1：useToggle（开关切换）── */
+    function useToggle(initialValue = false) {
+      const [value, setValue] = useState(initialValue)
+      const toggle = () => setValue(prev => !prev)
+      return { value, toggle }
+    }
+
+    /* ── 自定义 Hook 2：useLocalStorage（本地存储）── */
+    function useLocalStorage(key, initialValue) {
+      const [storedValue, setStoredValue] = useState(() => {
+        try {
+          const item = window.localStorage.getItem(key)
+          return item ? JSON.parse(item) : initialValue
+        } catch (error) {
+          console.error('localStorage 读取失败:', error)
+          return initialValue
+        }
+      })
+
+      const setValue = (value) => {
+        try {
+          const valueToStore = value instanceof Function ? value(storedValue) : value
+          setStoredValue(valueToStore)
+          window.localStorage.setItem(key, JSON.stringify(valueToStore))
+        } catch (error) {
+          console.error('localStorage 写入失败:', error)
+        }
+      }
+
+      return [storedValue, setValue]
+    }
+
+    /* ── 自定义 Hook 3：useDebounce（防抖）── */
+    function useDebounce(value, delay) {
+      const [debouncedValue, setDebouncedValue] = useState(value)
+
+      useEffect(() => {
+        const handler = setTimeout(() => {
+          setDebouncedValue(value)
+        }, delay)
+
+        return () => {
+          clearTimeout(handler)
+        }
+      }, [value, delay])
+
+      return debouncedValue
+    }
+
+    function App() {
+      // 示例一：useToggle
+      const { value: isVisible, toggle } = useToggle(false)
+      
+      // 示例二：useLocalStorage
+      const [name, setName] = useLocalStorage('userName', '游客')
+      
+      // 示例三：useDebounce
+      const [searchInput, setSearchInput] = useState('')
+      const debouncedSearch = useDebounce(searchInput, 500)
+
+      return (
+        <div className="container">
+          <h1>07_自定义Hook示例</h1>
+          <p className="subtitle">自定义 Hook = 可复用的逻辑函数，以 use 开头</p>
+
+          {/* 概念说明 */}
+          <div className="card" style={{ background: '#f0f8ff', borderColor: '#90caf9' }}>
+            <h3>🔧 什么是自定义 Hook？</h3>
+            <div style={{ fontSize: '14px', lineHeight: '2', color: '#555' }}>
+              <div>• <strong>定义</strong>：以 <code>use</code> 开头的函数，内部可以调用其他 Hook</div>
+              <div>• <strong>目的</strong>：提取<strong>可复用的逻辑</strong>，让多个组件共享相同的状态和行为</div>
+              <div>• <strong>优势</strong>：逻辑复用、关注点分离、代码更简洁</div>
+            </div>
+          </div>
+
+          {/* 为什么需要自定义 Hook */}
+          <div className="section-title">① 为什么需要自定义 Hook？</div>
+          <div className="card">
+            <h3>问题：多个组件需要相同的逻辑</h3>
+            <div className="comparison">
+              <div className="bad">
+                <h4>❌ 没有自定义 Hook（重复代码）</h4>
+                <pre style={{ margin: 0, fontSize: 12, color: '#555' }}>
+{`// 组件 A
+function CompA() {
+  const [visible, setVisible] = useState(false)
+  const toggle = () => setVisible(!visible)
+  return <div>{visible && '内容'}<button onClick={toggle}>切换</button></div>
+}
+
+// 组件 B（代码重复！）
+function CompB() {
+  const [visible, setVisible] = useState(false)
+  const toggle = () => setVisible(!visible)
+  return <div>{visible && '其他内容'}<button onClick={toggle}>切换</button></div>
+}`}</pre>
+              </div>
+              <div className="good">
+                <h4>✅ 使用自定义 Hook（复用逻辑）</h4>
+                <pre style={{ margin: 0, fontSize: 12, color: '#555' }}>
+{`// 自定义 Hook
+function useToggle() {
+  const [value, setValue] = useState(false)
+  const toggle = () => setValue(!value)
+  return { value, toggle }
+}
+
+// 组件 A
+function CompA() {
+  const { value, toggle } = useToggle()
+  return <div>{value && '内容'}<button onClick={toggle}>切换</button></div>
+}
+
+// 组件 B（复用逻辑）
+function CompB() {
+  const { value, toggle } = useToggle()
+  return <div>{value && '其他内容'}<button onClick={toggle}>切换</button></div>
+}`}</pre>
+              </div>
+            </div>
+          </div>
+
+          {/* 示例一：useToggle */}
+          <div className="section-title">② 示例一：useToggle <span className="tag tag-blue">开关切换</span></div>
+          <div className="card">
+            <h3>封装布尔值切换逻辑</h3>
+            <div className="hook-box">
+              <h4>📦 useToggle Hook 实现：</h4>
+              <pre>{`function useToggle(initialValue = false) {
+  const [value, setValue] = useState(initialValue)
+  const toggle = () => setValue(prev => !prev)
+  return { value, toggle }
+}`}</pre>
+            </div>
+            <div className="demo-section">
+              <h4>🎮 演示：</h4>
+              <button className="btn-primary" onClick={toggle}>
+                {isVisible ? '隐藏内容' : '显示内容'}
+              </button>
+              {isVisible && (
+                <div className="result" style={{ marginTop: '10px' }}>
+                  🎉 内容已显示！这是通过 useToggle Hook 控制的。
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 示例二：useLocalStorage */}
+          <div className="section-title">③ 示例二：useLocalStorage <span className="tag tag-green">本地存储</span></div>
+          <div className="card">
+            <h3>封装 localStorage 操作，自动同步到浏览器存储</h3>
+            <div className="hook-box">
+              <h4>📦 useLocalStorage Hook 实现：</h4>
+              <pre>{`function useLocalStorage(key, initialValue) {
+  const [storedValue, setStoredValue] = useState(() => {
+    const item = localStorage.getItem(key)
+    return item ? JSON.parse(item) : initialValue
+  })
+
+  const setValue = (value) => {
+    setStoredValue(value)
+    localStorage.setItem(key, JSON.stringify(value))
+  }
+
+  return [storedValue,cke setValue]
+}`}</pre>
+            </div>
+            <div className="demo-section">
+              <h4>🎮 演示：</h4>
+              <div style={{ marginBottom: '8px' }}>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="输入你的名字"
+                  style={{ padding: '6px 12px', border: '1px solid #ddd', borderRadius: '4px', width: '200px' }}
+                />
+              </div>
+              <div className="result">
+                当前名字：<strong>{name}</strong><br/>
+                <span style={{ fontSize: '12px', color: '#888' }}>
+                  💡 刷新页面后名字会自动恢复（保存到了 localStorage）
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* 示例三：useDebounce */}
+          <div className="section-title">④ 示例三：useDebounce <span className="tag tag-orange">防抖</span></div>
+          <div className="card">
+            <h3>封装防抖逻辑，避免频繁触发</h3>
+            <div className="hook-box">
+              <h4>📦 useDebounce Hook 实现：</h4>
+              <pre>{`function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value)
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value)
+    }, delay)
+
+    return () => clearTimeout(handler)
+  }, [value, delay])
+
+  return debouncedValue
+}`}</pre>
+            </div>
+            <div className="demo-section">
+              <h4>🎮 演示：</h4>
+              <div style={{ marginBottom: '8px' }}>
+                <input
+                  type="text"
+                  value={searchInput}
+                  onChange={e => setSearchInput(e.target.value)}
+                  placeholder="输入搜索内容（防抖 500ms）"
+                  style={{ padding: '6px 12px', border: '1px solid #ddd', borderRadius: '4px', width: '250px' }}
+                />
+              </div>
+              <div className="result">
+                输入内容：<strong>{searchInput}</strong><br/>
+                防抖后：<strong>{debouncedSearch}</strong><br/>
+                <span style={{ fontSize: '12px', color: '#888' }}>
+                  💡 快速输入时，防抖值不会立即更新，停止输入 500ms 后才更新
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* 总结 */}
+          <div className="card" style={{ background: '#f0f8ff', borderColor: '#90caf9' }}>
+            <h3>📌 自定义 Hook 核心要点</h3>
+            <div style={{ fontSize: '14px', lineHeight: '2', color: '#555' }}>
+              <div>• <strong>命名规则</strong>：必须以 <code>use</code> 开头（如 <code>useToggle</code>）</div>
+              <div>• <strong>调用规则</strong>：只能在函数组件或其他 Hook 的顶层调用</div>
+              <div>• <strong>返回值</strong>：可以返回任何值（对象、数组、函数等）</div>
+              <div>• <strong>复用性</strong>：一个 Hook 可以在多个组件中使用，逻辑完全独立</div>
+              <div>• <strong>组合性</strong>：自定义 Hook 内部可以使用多个内置 Hook</div>
+            </div>
+          </div>
+
+          {/* 学习进度总结 */}
+          <div className="card" style={{ background: '#f8fff8', borderColor: '#81c784', marginTop: '24px' }}>
+            <h3 style={{ color: '#2e7d32' }}>📚 React 学习进度总结</h3>
+            <div style={{ fontSize: '14px', lineHeight: '1.8', color: '#555' }}>
+              <div style={{ marginBottom: '12px' }}>
+                <strong style={{ color: '#2e7d32' }}>已完成内容：</strong>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '13px' }}>
+                <div>
+                  <strong>day01：</strong> JSX、虚拟DOM、事件绑定、组件概念、useState、B站评论案例、classnames优化
+                </div>
+                <div>
+                  <strong>day02：</strong> Lodash、受控表单、useRef、搜索清空聚焦、父子组件通信、useEffect、自定义Hook
+                </div>
+              </div>
+              
+              <div style={{ marginTop: '12px' }}>
+                <strong style={{ color: '#2e7d32' }}>核心概念掌握：</strong>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', fontSize: '13px', marginTop: '8px' }}>
+                <div>• <strong>useState</strong>：状态管理，触发重新渲染</div>
+                <div>• <strong>useEffect</strong>：副作用处理，AJAX请求、DOM操作</div>
+                <div>• <strong>useRef</strong>：DOM引用、存储不触发渲染的值</div>
+                <div>• <strong>父子通信</strong>：props向下、回调向上、兄弟通过状态提升</div>
+                <div>• <strong>Context</strong>：跨层级通信，跳过中间层</div>
+                <div>• <strong>自定义Hook</strong>：逻辑复用，以use开头的函数</div>
+              </div>
+              
+              <div style={{ marginTop: '12px', padding: '8px 12px', background: '#e8f5e9', borderRadius: '4px', fontSize: '12px' }}>
+                <strong>下一步：</strong> 继续学习更多React特性或开始实际项目练习
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'))
+    root.render(<App />)
+  </script>
+</body>
+</html>

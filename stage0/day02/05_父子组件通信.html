@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>05_父子组件通信</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; background: #f5f5f5; }
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 { color: #333; margin-bottom: 8px; }
+    .subtitle { color: #888; font-size: 14px; margin-bottom: 24px; }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 2px solid #eee;
+    }
+    .card.parent { border-color: #00a1d6; }
+    .card.child  { border-color: #ff9800; margin-left: 24px; }
+
+    .card-label {
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      padding: 3px 10px;
+      border-radius: 10px;
+      display: inline-block;
+    }
+    .parent .card-label { background: #e3f2fd; color: #1565c0; }
+    .child  .card-label { background: #fff3e0; color: #e65100; }
+
+    .arrow {
+      text-align: center;
+      font-size: 22px;
+      color: #aaa;
+      margin: -10px 0 -10px 40px;
+    }
+
+    h3 { color: #333; margin: 0 0 12px 0; font-size: 15px; }
+
+    .info-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+    .badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    .badge-blue { background: #e3f2fd; color: #1565c0; }
+    .badge-orange { background: #fff3e0; color: #e65100; }
+    .badge-green { background: #e8f5e9; color: #2e7d32; }
+
+    input[type="text"] {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      width: 200px;
+    }
+    button {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-primary { background: #00a1d6; color: white; }
+    .btn-primary:hover { background: #008bc7; }
+    .btn-danger  { background: #f44336; color: white; }
+    .btn-danger:hover { background: #d32f2f; }
+    .btn-orange  { background: #ff9800; color: white; }
+    .btn-orange:hover { background: #f57c00; }
+
+    .display-box {
+      background: #f9f9f9;
+      border: 1px dashed #ccc;
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-size: 14px;
+      color: #555;
+      margin-top: 10px;
+    }
+    .display-box strong { color: #00a1d6; }
+
+    .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .tag {
+      padding: 5px 14px;
+      background: #e3f2fd;
+      color: #1565c0;
+      border-radius: 20px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tag button {
+      background: none;
+      border: none;
+      color: #1565c0;
+      cursor: pointer;
+      padding: 0;
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+      margin: 30px 0 12px;
+      padding-left: 10px;
+      border-left: 4px solid #00a1d6;
+    }
+
+    .code-hint {
+      background: #f5f5f5;
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-family: Consolas, monospace;
+      font-size: 12px;
+      color: #555;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useContext, createContext } = React
+
+    // createContext：创建上下文对象（在组件外部创建）
+    const MsgContext = createContext()
+
+    /* ─────────────────────────────────────────
+       示例四：跨层级通信（Context）
+       App 创建 Context → 任意层级子组件直接消费
+    ───────────────────────────────────────── */
+    function CtxCompA() {
+      // A 组件不需要接收 props，也不需要转发，直接透明
+      return (
+        <div className="card child" style={{ borderColor: '#9c27b0', marginLeft: '0' }}>
+          <span className="card-label" style={{ background: '#f3e5f5', color: '#6a1b9a' }}>中间层 A（不需要传 props）</span>
+          <div className="display-box">A 组件不关心数据，直接渲染 B</div>
+          <CtxCompB />
+        </div>
+      )
+    }
+
+    function CtxCompB() {
+      // useContext：从最近的 Provider 取出数据
+      const msg = useContext(MsgContext)
+      return (
+        <div className="card child" style={{ borderColor: '#e91e63', marginLeft: '0', marginTop: '12px' }}>
+          <span className="card-label" style={{ background: '#fce4ec', color: '#880e4f' }}>底层组件 B</span>
+          <div className="display-box">
+            通过 useContext 获取：<strong>{msg}</strong>
+          </div>
+          <div className="code-hint">
+            {`// 直接消费，不需要 props 层层传递\nconst msg = useContext(MsgContext)`}
+          </div>
+        </div>
+      )
+    }
+
+    /* ─────────────────────────────────────────
+       示例一：父传子（Props）
+       父组件持有数据，通过属性传给子组件显示
+    ───────────────────────────────────────── */
+    function UserCard({ name, age, role }) {
+      return (
+        <div className="card child">
+          <span className="card-label">子组件 UserCard</span>
+          <div className="display-box">
+            姓名：<strong>{name}</strong> &nbsp;|&nbsp;
+            年龄：<strong>{age}</strong> &nbsp;|&nbsp;
+            角色：<strong>{role}</strong>
+          </div>
+          <div className="code-hint">
+            {`// 子组件接收 props（解构写法）\nfunction UserCard({ name, age, role }) { ... }`}
+          </div>
+        </div>
+      )
+    }
+
+    /* ─────────────────────────────────────────
+       示例二：子传父
+       子组件通过调用父组件传来的函数，把数据传回父组件
+    ───────────────────────────────────────── */
+    function TagInput({ onAdd }) {
+      const [value, setValue] = useState('')
+
+      const handleAdd = () => {
+        if (!value.trim()) return
+        onAdd(value.trim())   // 调用父组件的函数，把数据传上去
+        setValue('')
+      }
+
+      return (
+        <div className="card child">
+          <span className="card-label">子组件 TagInput</span>
+          <div className="info-row">
+            <input
+              type="text"
+              value={value}
+              onChange={e => setValue(e.target.value)}
+              placeholder="输入标签名"
+              onKeyDown={e => e.key === 'Enter' && handleAdd()}
+            />
+            <button className="btn-orange" onClick={handleAdd}>添加标签</button>
+          </div>
+          <div className="code-hint">
+            {`// 子组件调用父传来的函数，把数据传回父\nonAdd(value.trim())`}
+          </div>
+        </div>
+      )
+    }
+
+    /* ─────────────────────────────────────────
+       示例三：兄弟组件通信（状态提升）
+       A 子传父 → App 更新 state → 父传子 B
+    ───────────────────────────────────────── */
+    function CompA({ onSend }) {
+      const name = 'this is A name'
+      return (
+        <div className="card child">
+          <span className="card-label">兄弟组件 A</span>
+          <div className="display-box">持有数据：<strong>{name}</strong></div>
+          <button className="btn-primary" style={{ marginTop: '10px' }} onClick={() => onSend(name)}>
+            send → 传给 B
+          </button>
+          <div className="code-hint">
+            {`// A 子传父：调用父传来的 onSend 函数\n<button onClick={() => onSend(name)}>send</button>`}
+          </div>
+        </div>
+      )
+    }
+
+    function CompB({ msg }) {
+      return (
+        <div className="card child">
+          <span className="card-label">兄弟组件 B</span>
+          <div className="display-box">
+            收到来自 A 的数据：<strong>{msg || '（还没收到）'}</strong>
+          </div>
+          <div className="code-hint">
+            {`// B 父传子：通过 props 接收\nfunction CompB({ msg }) { return <div>{msg}</div> }`}
+          </div>
+        </div>
+      )
+    }
+
+    /* ─────────────────────────────────────────
+       父组件 App：统一管理状态
+    ───────────────────────────────────────── */
+    function App() {
+      // 示例一的数据（父 → 子）
+      const userInfo = { name: '张三', age: 24, role: '前端开发' }
+
+      // 示例二的数据（子 → 父）
+      const [tags, setTags] = useState(['React', 'TypeScript'])
+
+      // 示例三的数据（兄弟通信 - 状态提升）
+      const [siblingMsg, setSiblingMsg] = useState('')
+
+      const handleAddTag = (tag) => {
+        setTags([...tags, tag])   // 子组件传来的值，父组件更新 state
+      }
+
+      const handleRemoveTag = (index) => {
+        setTags(tags.filter((_, i) => i !== index))
+      }
+
+      return (
+        <div className="container">
+          <h1>05_父子组件通信</h1>
+          <p className="subtitle">父传子用 Props，子传父用回调函数</p>
+
+          {/* ── 示例一：父传子 ── */}
+          <div className="section-title">① 父传子 — 通过 Props 传数据</div>
+          <div className="card parent">
+            <span className="card-label">父组件 App</span>
+            <h3>持有用户数据，传给子组件显示</h3>
+            <div className="info-row">
+              <span className="badge badge-blue">name = "{userInfo.name}"</span>
+              <span className="badge badge-blue">age = {userInfo.age}</span>
+              <span className="badge badge-blue">role = "{userInfo.role}"</span>
+            </div>
+            <div className="code-hint">
+              {`// 父组件把数据作为属性传给子组件\n<UserCard name={name} age={age} role={role} />`}
+            </div>
+          </div>
+
+          <div className="arrow">↓ props 向下传递</div>
+
+          <UserCard
+            name={userInfo.name}
+            age={userInfo.age}
+            role={userInfo.role}
+          />
+
+          {/* ── 示例二：子传父 ── */}
+          <div className="section-title">② 子传父 — 通过回调函数传数据</div>
+          <div className="card parent">
+            <span className="card-label">父组件 App</span>
+            <h3>标签列表（state 在父组件）</h3>
+            <div className="tag-list">
+              {tags.map((tag, i) => (
+                <div key={i} className="tag">
+                  {tag}
+                  <button onClick={() => handleRemoveTag(i)}>✕</button>
+                </div>
+              ))}
+            </div>
+            <div className="code-hint">
+              {`// 父组件定义函数，传给子组件\nconst handleAddTag = (tag) => setTags([...tags, tag])\n<TagInput onAdd={handleAddTag} />`}
+            </div>
+          </div>
+
+          <div className="arrow">↑ 子组件调用 onAdd() 把数据传上来</div>
+
+          <TagInput onAdd={handleAddTag} />
+
+          {/* ── 示例三：兄弟通信 ── */}
+          <div className="section-title">③ 兄弟组件通信 — 状态提升</div>
+          <div className="card parent">
+            <span className="card-label">父组件 App（中间人）</span>
+            <h3>state 提升到父组件，充当 A 和 B 之间的桥梁</h3>
+            <div className="display-box">
+              当前 siblingMsg：<strong>{siblingMsg || '（A 还未发送）'}</strong>
+            </div>
+            <div className="code-hint">
+              {`// App 持有 state，分别传给 A（函数）和 B（数据）\nconst [siblingMsg, setSiblingMsg] = useState('')\n<CompA onSend={setSiblingMsg} />\n<CompB msg={siblingMsg} />`}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0', flexDirection: 'column' }}>
+            <div className="arrow">↑ A 子传父（onSend）&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓ 父传 B（msg）</div>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <CompA onSend={setSiblingMsg} />
+              <CompB msg={siblingMsg} />
+            </div>
+          </div>
+
+          {/* ── 示例四：Context 跨层级 ── */}
+          <div className="section-title">④ 跨层级通信 — Context 机制</div>
+          <div className="card parent" style={{ borderColor: '#9c27b0' }}>
+            <span className="card-label" style={{ background: '#f3e5f5', color: '#6a1b9a' }}>顶层组件 App（Provider）</span>
+            <h3>用 Ctx.Provider 包裹，value 传入数据</h3>
+            <div className="display-box">提供数据：<strong>this is app name</strong></div>
+            <div className="code-hint">
+              {`// 1. 创建 Context（组件外）\nconst MsgContext = createContext()\n\n// 2. 顶层用 Provider 包裹并提供 value\n<MsgContext.Provider value="this is app name">\n  <CompA />  {/* 中间层，不需要传 props */}\n</MsgContext.Provider>`}
+            </div>
+          </div>
+          <div className="arrow">↓ Provider 向下广播，跳过中间层</div>
+          <MsgContext.Provider value="this is app name">
+            <CtxCompA />
+          </MsgContext.Provider>
+          <div className="card" style={{ marginTop: '12px', background: '#fdf6ff', border: '1px solid #ce93d8', fontSize: '13px', color: '#555' }}>
+            <strong style={{ color: '#6a1b9a' }}>对比 props 传递：</strong><br/>
+            props：App → A（传一次）→ B（再传一次）需要每层都写<br/>
+            Context：App 直接广播 → B 直接取，中间层 A <strong>完全不需要参与</strong>
+          </div>
+
+          {/* ── 总结 ── */}
+          <div className="card" style={{ marginTop: '24px', background: '#f0f8ff' }}>
+            <h3 style={{ color: '#1565c0' }}>📌 核心规则</h3>
+            <div style={{ fontSize: '14px', lineHeight: '2', color: '#555' }}>
+              <div>• <strong>父 → 子</strong>：通过 <code>props</code> 传数据，子组件只读不能改</div>
+              <div>• <strong>子 → 父</strong>：父传一个<strong>函数</strong>给子，子调用这个函数把数据传回去</div>
+              <div>• <strong>兄弟通信</strong>：A 子传父 → 父更新 state → 父传子 B（状态提升）</div>
+              <div>• <strong>跨层级</strong>：<code>createContext</code> 创建 → <code>Provider</code> 提供 → <code>useContext</code> 消费，跳过中间层</div>
+              <div>• <strong>state 放在哪</strong>：放在需要用这个数据的最近公共父组件里</div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'))
+    root.render(<App />)
+  </script>
+</body>
+</html>

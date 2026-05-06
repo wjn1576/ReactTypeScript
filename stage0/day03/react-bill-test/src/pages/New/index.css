@@ -1,0 +1,141 @@
+.new-container {
+  padding: 0;
+  background: white;
+  min-height: 100vh;
+}
+
+.new-header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.back-btn {
+  padding: 8px;
+  cursor: pointer;
+  color: var(--text-main);
+}
+
+.new-title {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  margin-right: 40px;
+}
+
+.type-switcher {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  margin: 20px;
+}
+
+.type-btn {
+  flex: 1;
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.type-btn.active {
+  background: white;
+  color: var(--primary-color);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.amount-input-box {
+  padding: 0 20px 20px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.amount-input {
+  width: 100%;
+  border: none;
+  font-size: 48px;
+  font-weight: 700;
+  outline: none;
+  color: var(--text-main);
+}
+
+.amount-input::placeholder {
+  color: #cbd5e1;
+}
+
+.category-section {
+  padding: 20px;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.category-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.category-icon-box {
+  width: 50px;
+  height: 50px;
+  border-radius: 16px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  transition: all 0.3s;
+}
+
+.category-item.active .category-icon-box {
+  background: var(--primary-color);
+  color: white;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.category-name {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.form-item {
+  padding: 20px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.input {
+  width: 100%;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+}
+
+.save-btn {
+  margin: 40px 20px;
+  background: var(--primary-color);
+  color: white;
+  padding: 16px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(99, 102, 241, 0.2);
+}

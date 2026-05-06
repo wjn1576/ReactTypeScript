@@ -1,0 +1,77 @@
+{
+  "comments": [
+    {
+      "id": "1",
+      "author": "jack",
+      "text": "这是一条评论回复",
+      "time": "2023-11-11",
+      "likes": 100,
+      "isLiked": false,
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=jack"
+    },
+    {
+      "id": "2",
+      "author": "张三",
+      "text": "讲得真好，学习了！",
+      "time": "2023-11-10",
+      "likes": 50,
+      "isLiked": false,
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhang"
+    },
+    {
+      "id": "3",
+      "author": "李四",
+      "text": "收藏了，以后再看",
+      "time": "2023-11-09",
+      "likes": 80,
+      "isLiked": false,
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=li"
+    },
+    {
+      "id": "4",
+      "author": "王五",
+      "text": "已三连支持！",
+      "time": "2023-11-08",
+      "likes": 120,
+      "isLiked": false,
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wang"
+    },
+    {
+      "author": "我",
+      "text": "11",
+      "time": "2026-03-31",
+      "likes": 0,
+      "isLiked": false,
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=me",
+      "id": "fhHnWLGnwRw"
+    },
+    {
+      "author": "我",
+      "text": "无畏契约1",
+      "time": "2026-03-31",
+      "likes": 0,
+      "isLiked": false,
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=me",
+      "id": "0JF-Ao3TIec"
+    },
+    {
+      "author": "我",
+      "text": "特踏实",
+      "time": "2026-03-31",
+      "likes": 0,
+      "isLiked": false,
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=me",
+      "id": "hsgOMEmFXYM"
+    },
+    {
+      "author": "我",
+      "text": "123",
+      "time": "2026-03-31",
+      "likes": 0,
+      "isLiked": false,
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=me",
+      "id": "8Xao8GV7EHo"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
